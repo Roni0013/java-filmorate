@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.DuplicateException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -25,11 +24,6 @@ public class FilmController {
 
     @PostMapping
     public Film create(@RequestBody @Valid Film film) {
-        if (isExistsByName(film)) {
-            String message = "Фильм с таким названием уже добавлен";
-            log.warn(message);
-            throw new DuplicateException(message);
-        }
         int nextId = ++count;
         film.setId(nextId);
         films.put(nextId, film);
@@ -44,12 +38,6 @@ public class FilmController {
             throw new NotFoundException("Фильм не найден");
         }
 
-        if (isExistsByName(film)) {
-            String message = "Фильм с таким названием уже существует";
-            log.warn(message);
-            films.put(existsFilm.getId(), existsFilm);
-            throw new DuplicateException(message);
-        }
         existsFilm = existsFilm.toBuilder().name(film.getName()).description(film.getDescription()).releaseDate(film.getReleaseDate())
             .duration(film.getDuration()).build();
         films.put(existsFilm.getId(), existsFilm);
@@ -57,12 +45,4 @@ public class FilmController {
         return existsFilm;
     }
 
-    private boolean isExistsByName(Film newFilm) {
-        for (Film film : films.values()) {
-            if (film.getName().equals(newFilm.getName())) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

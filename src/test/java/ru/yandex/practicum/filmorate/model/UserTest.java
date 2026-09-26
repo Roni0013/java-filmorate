@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class UserTest {
     private static Validator validator;
@@ -26,7 +27,6 @@ public class UserTest {
     @ParameterizedTest
     @CsvSource(value = {
         "Name, Name",
-        ", loginUser"
     })
     public void createSuccess(String name, String expectedName) {
         int id = 5;
@@ -45,7 +45,10 @@ public class UserTest {
     @ParameterizedTest
     @CsvSource(value = {
         "login User, test@test.test, 2000-01-01, login",
+        "' ', test@test.test, 2000-01-01, login",
+        "'', test@test.test, 2000-01-01, login",
         "loginUser, testTest.test, 2000-01-01, email",
+        "loginUser, '', 2000-01-01, email",
         "loginUser, test@Test.test, 3000-01-01, birthday",
         ", test@test.test, 2000-01-01, login",
         "loginUser, , 2000-01-01, email",
@@ -58,6 +61,7 @@ public class UserTest {
 
         Set<ConstraintViolation<User>> errors = validator.validate(user);
 
+        assertFalse(errors.isEmpty());
         errors.forEach(v -> assertEquals(errorField, v.getPropertyPath().toString()));
     }
 }

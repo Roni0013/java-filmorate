@@ -12,7 +12,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.time.LocalDate;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class FilmTest {
@@ -44,9 +44,10 @@ public class FilmTest {
     @ParameterizedTest
     @CsvSource(value = {
         ", description, 1, 2000-01-01, 95, name",
+        "' ', description, 1, 2000-01-01, 95, name",
         "Film, description, 25, 2000-01-01, 95, description",
         "Film, description, 1, 2000-01-01, -95, duration",
-        "Film, description, 1, 1895-12-28, 95, releaseDate",
+        "Film, description, 1, 1895-12-27, 95, releaseDate",
     })
     public void validateErrors(String name, String desc, int repeat, String dateString,
                                int duration, String errorField) {
@@ -56,6 +57,7 @@ public class FilmTest {
         Film film = Film.builder().name(name).description(description).releaseDate(releaseDate).duration(duration).build();
 
         Set<ConstraintViolation<Film>> errors = validator.validate(film);
+        assertFalse(errors.isEmpty());
         errors.forEach(v -> assertEquals(errorField, v.getPropertyPath().toString()));
     }
 }

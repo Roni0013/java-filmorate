@@ -15,18 +15,22 @@ import java.util.Map;
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
+    private static final String USER_EXISTS_MESSAGE = "Пользователь с указанными login или email уже существует";
+
     private final Map<Integer, User> users = new HashMap<>();
     private int count = 0;
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
         if (isLoginEmailExists(user)) {
-            String message = "Пользователь с указанными login или email уже существует";
-            log.warn(message);
-            throw new DuplicateException(message);
+            log.warn(USER_EXISTS_MESSAGE);
+            throw new DuplicateException(USER_EXISTS_MESSAGE);
         }
         int nextId = ++count;
         user.setId(nextId);
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
         users.put(nextId, user);
         log.info("Пользователь {} добавлен", user.getLogin());
         return user;
@@ -44,17 +48,13 @@ public class UserController {
             throw new NotFoundException("Пользователь не найден");
         }
         if (isLoginEmailExists(user)) {
-            String message = "Пользователь с указанными login или email уже существует";
-            log.warn(message);
+            log.warn(USER_EXISTS_MESSAGE);
             users.put(existsUser.getId(), existsUser);
-            throw new DuplicateException(message);
+            throw new DuplicateException(USER_EXISTS_MESSAGE);
         }
-        existsUser.toBuilder().name(user.getName()).email(user.getEmail()).birthday(user.getBirthday())
+        String name = user.getName() == null || user.getName().isEmpty() ? user.getLogin() : user.getName();
+        existsUser = existsUser.toBuilder().name(name).email(user.getEmail()).birthday(user.getBirthday())
             .login(user.getLogin()).build();
-        existsUser.setName(user.getName());
-        existsUser.setEmail(user.getEmail());
-        existsUser.setBirthday(user.getBirthday());
-        existsUser.setLogin(user.getLogin());
         users.put(existsUser.getId(), existsUser);
         log.info("Пользователь {} обновлен", existsUser.getLogin());
         return existsUser;

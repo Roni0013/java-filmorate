@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -17,21 +15,14 @@ import java.time.LocalDate;
 @Slf4j
 public class User {
     private int id;
-    @NotNull
+    @NotBlank
     @Email
     private String email;
-    @NotNull
+    @NotBlank
     @WithoutSpace
     private String login;
     private String name;
     @NotNull
     @PastOrPresent
     private LocalDate birthday;
-
-    public String getName() {
-        if (name == null) {
-            return login;
-        }
-        return name;
-    }
 }
