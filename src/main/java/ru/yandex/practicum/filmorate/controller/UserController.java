@@ -52,7 +52,7 @@ public class UserController {
             users.put(existsUser.getId(), existsUser);
             throw new DuplicateException(USER_EXISTS_MESSAGE);
         }
-        String name = user.getName() == null || user.getName().isEmpty() ? user.getLogin() : user.getName();
+        String name = user.getName() == null || user.getName().isBlank() ? user.getLogin() : user.getName();
         existsUser = existsUser.toBuilder().name(name).email(user.getEmail()).birthday(user.getBirthday())
             .login(user.getLogin()).build();
         users.put(existsUser.getId(), existsUser);
