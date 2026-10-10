@@ -37,7 +37,7 @@ public class UserService {
         // тут должна быть проверка checkExistsUser как в create, но тогда тесты postman не проходят
         // checkExistsUser(user);
         User existsUser = getUser(user.getId()).toBuilder().name(user.getName()).email(user.getEmail())
-                .login(user.getLogin()).birthday(user.getBirthday()).build();
+            .login(user.getLogin()).birthday(user.getBirthday()).build();
         userStorage.update(existsUser);
         log.info("Пользователь {} обновлен", user.getLogin());
         return existsUser;
@@ -83,9 +83,9 @@ public class UserService {
         });
     }
 
-    private void checkExistsUser(User user ) {
+    private void checkExistsUser(User user) {
         if (userStorage.isExists(u -> u.getLogin().equals(user.getLogin())
-                || u.getEmail().equals(user.getEmail()))) {
+            || u.getEmail().equals(user.getEmail()))) {
             String errorMessage = "Пользователь с указанными login или email уже существует";
             log.error(errorMessage);
             throw new DuplicateException(errorMessage);

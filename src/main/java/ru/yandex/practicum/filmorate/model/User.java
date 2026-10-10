@@ -16,6 +16,8 @@ import java.util.Set;
 @Builder(toBuilder = true)
 @EqualsAndHashCode(of = {"id"})
 public class User {
+    @Getter(AccessLevel.NONE)
+    private final Set<User> friends = new HashSet<>();
     private int id;
     @NotBlank
     @Email
@@ -27,8 +29,6 @@ public class User {
     @NotNull
     @PastOrPresent
     private LocalDate birthday;
-    @Getter(AccessLevel.NONE)
-    private final Set<User> friends = new HashSet<>();
 
     public void addFriend(User user) {
         friends.add(user);

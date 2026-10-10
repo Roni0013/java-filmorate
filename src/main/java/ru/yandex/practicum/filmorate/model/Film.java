@@ -20,6 +20,8 @@ import java.util.Set;
 @Builder(toBuilder = true)
 @EqualsAndHashCode(of = {"id"})
 public class Film {
+    @Getter(AccessLevel.NONE)
+    private final Set<User> likes = new HashSet<>();
     private int id;
     @NotBlank
     private String name;
@@ -30,9 +32,6 @@ public class Film {
     private LocalDate releaseDate;
     @Positive
     private int duration;
-
-    @Getter(AccessLevel.NONE)
-    private final Set<User> likes = new HashSet<>();
 
     public void addLike(User user) {
         likes.add(user);

@@ -36,24 +36,24 @@ public class FilmService {
     public Film update(Film film) {
         Film existsFilm = getFilm(film.getId());
         existsFilm = existsFilm.toBuilder().name(film.getName()).description(film.getDescription())
-                .releaseDate(film.getReleaseDate()).duration(film.getDuration()).build();
+            .releaseDate(film.getReleaseDate()).duration(film.getDuration()).build();
         filmStorage.update(existsFilm);
         log.info("Фильм {} обновлен", film.getName());
         return existsFilm;
     }
 
-    public void addLike(int filmId, int userId ) {
+    public void addLike(int filmId, int userId) {
         Film film = getFilm(filmId);
         User user = getUser(userId);
         film.addLike(user);
-        log.info("Пользователь {} поставил лайк к фильму {}",user.getLogin() ,film.getName());
+        log.info("Пользователь {} поставил лайк к фильму {}", user.getLogin(), film.getName());
     }
 
-    public void removeLike(int filmId, int userId ) {
+    public void removeLike(int filmId, int userId) {
         Film film = getFilm(filmId);
         User user = getUser(userId);
         film.removeLike(user);
-        log.info("Пользователь {} убрал лайк к фильму {}",user.getLogin() ,film.getName());
+        log.info("Пользователь {} убрал лайк к фильму {}", user.getLogin(), film.getName());
     }
 
     public Collection<Film> getMostPopular(int count) {
