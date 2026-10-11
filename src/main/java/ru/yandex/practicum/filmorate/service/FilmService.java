@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -11,9 +10,10 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
+import java.util.Comparator;
 
 @Service
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@RequiredArgsConstructor
 @Slf4j
 public class FilmService {
     private final FilmStorage filmStorage;
@@ -57,7 +57,7 @@ public class FilmService {
     }
 
     public Collection<Film> getMostPopular(int count) {
-        return filmStorage.list().stream().sorted(new Film.PopulationComparator().reversed()).limit(count).toList();
+        return filmStorage.list().stream().sorted(Comparator.reverseOrder()).limit(count).toList();
     }
 
     private Film getFilm(int id) {

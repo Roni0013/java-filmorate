@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.DuplicateException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -13,7 +12,7 @@ import java.util.Collection;
 import java.util.Set;
 
 @Service
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@RequiredArgsConstructor
 @Slf4j
 public class UserService {
     private final UserStorage userStorage;
@@ -24,7 +23,7 @@ public class UserService {
 
     public User create(User user) {
         log.trace("Добавление пользователя {}", user);
-        checkExistsUser(user);
+        checkExistsUserByLoginAndEmail(user);
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
@@ -34,9 +33,9 @@ public class UserService {
     }
 
     public User update(User user) {
-        // тут должна быть проверка checkExistsUser как в create, но тогда тесты postman не проходят
-        // checkExistsUser(user);
-        User existsUser = getUser(user.getId()).toBuilder().name(user.getName()).email(user.getEmail())
+        User existsUser = getUser(user.getId());
+        checkExistsUserByLoginAndEmail(user);
+        existsUser = existsUser.toBuilder().name(user.getName()).email(user.getEmail())
             .login(user.getLogin()).birthday(user.getBirthday()).build();
         userStorage.update(existsUser);
         log.info("Пользователь {} обновлен", user.getLogin());
@@ -83,9 +82,14 @@ public class UserService {
         });
     }
 
-    private void checkExistsUser(User user) {
-        if (userStorage.isExists(u -> u.getLogin().equals(user.getLogin())
-            || u.getEmail().equals(user.getEmail()))) {
+    private void checkExistsUserByLoginAndEmail(User user) {
+        if (userStorage.isExists(u -> {
+            if (user.getId() != null && u.getId().equals(user.getId())) {
+                return false;
+            }
+            return u.getLogin().equals(user.getLogin()) || u.getEmail().equals(user.getEmail());
+        })
+        ) {
             String errorMessage = "Пользователь с указанными login или email уже существует";
             log.error(errorMessage);
             throw new DuplicateException(errorMessage);

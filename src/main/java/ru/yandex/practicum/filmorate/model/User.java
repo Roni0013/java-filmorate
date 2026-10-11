@@ -18,7 +18,7 @@ import java.util.Set;
 public class User {
     @Getter(AccessLevel.NONE)
     private final Set<User> friends = new HashSet<>();
-    private int id;
+    private Integer id;
     @NotBlank
     @Email
     private String email;
