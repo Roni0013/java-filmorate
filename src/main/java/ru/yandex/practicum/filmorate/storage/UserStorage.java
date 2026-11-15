@@ -16,4 +16,12 @@ public interface UserStorage {
     boolean isExists(Predicate<User> predicate);
 
     void update(User user);
+
+    void addFriend(User user, User friend);
+
+    void deleteFriend(User user, User friend);
+
+    Collection<User> getFriendsByUserId(int id);
+
+    Collection<User> getUsersByFilmId(int id);
 }

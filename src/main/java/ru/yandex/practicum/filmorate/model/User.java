@@ -8,16 +8,16 @@ import lombok.*;
 import ru.yandex.practicum.filmorate.validator.WithoutSpace;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Set;
 
 @Getter
 @Setter
 @Builder(toBuilder = true)
 @EqualsAndHashCode(of = {"id"})
+@ToString
 public class User {
     @Getter(AccessLevel.NONE)
-    private final Set<User> friends = new HashSet<>();
+    private Set<User> friends;
     private Integer id;
     @NotBlank
     @Email
@@ -30,12 +30,12 @@ public class User {
     @PastOrPresent
     private LocalDate birthday;
 
-    public void addFriend(User user) {
-        friends.add(user);
+    public boolean addFriend(User user) {
+        return friends.add(user);
     }
 
-    public void removeFriend(User user) {
-        friends.remove(user);
+    public boolean removeFriend(User user) {
+        return friends.remove(user);
     }
 
     public Set<User> listFriends() {

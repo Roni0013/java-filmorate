@@ -5,14 +5,15 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class UserTest {
     private static Validator validator;
@@ -63,5 +64,39 @@ public class UserTest {
 
         assertFalse(errors.isEmpty());
         errors.forEach(v -> assertEquals(errorField, v.getPropertyPath().toString()));
+    }
+
+    @Test
+    public void addFriendSuccess() {
+        User user = new User.UserBuilder().id(1).friends(new HashSet<>()).build();
+        User friend = new User.UserBuilder().id(2).build();
+
+        user.addFriend(friend);
+
+        assertEquals(1, user.listFriends().size());
+    }
+
+    @Test
+    public void addExistsFriendSuccess() {
+        User user = new User.UserBuilder().id(1).friends(new HashSet<>()).build();
+        User friend = new User.UserBuilder().id(2).friends(new HashSet<>()).build();
+
+        boolean addFirstResult = user.addFriend(friend);
+        boolean addSecondResult = user.addFriend(friend);
+
+        assertEquals(1, user.listFriends().size());
+        assertTrue(addFirstResult);
+        assertFalse(addSecondResult);
+    }
+
+    @Test
+    public void removeFriendSuccess() {
+        User friend = new User.UserBuilder().id(2).build();
+        Set<User> friends = new HashSet<>();
+        friends.add(friend);
+        User user = new User.UserBuilder().id(1).friends(friends).build();
+
+        assertTrue(user.removeFriend(friend));
+        assertTrue(user.listFriends().isEmpty());
     }
 }
