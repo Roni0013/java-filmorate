@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 public interface UserStorage {
-    Collection<User> list();
+    Collection<User> getAll();
 
     int add(User user);
 
@@ -16,4 +16,14 @@ public interface UserStorage {
     boolean isExists(Predicate<User> predicate);
 
     void update(User user);
+
+    void addFriend(User user, User friend);
+
+    void deleteFriend(User user, User friend);
+
+    Collection<User> getFriendsByUserId(int id);
+
+    Collection<User> getUsersByFilmId(int id);
+
+    Collection<User> getCommonFriends(int id, int otherId);
 }
