@@ -22,8 +22,8 @@ public class MpaDbStorageTest {
     private final MpaDbStorage mpaStorage;
 
     @Test
-    public void testList() {
-        Collection<Mpa> mpaList = mpaStorage.list();
+    public void testGetAll() {
+        Collection<Mpa> mpaList = mpaStorage.getAll();
 
         assertEquals(5, mpaList.size());
     }

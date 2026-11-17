@@ -11,18 +11,20 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.mapper.FilmRowMapper;
 import ru.yandex.practicum.filmorate.storage.mapper.GenreRowMapper;
+import ru.yandex.practicum.filmorate.storage.mapper.MpaRowMapper;
 import ru.yandex.practicum.filmorate.storage.mapper.UserRowMapper;
 
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @JdbcTest
 @AutoConfigureTestDatabase
-@Import({FilmDbStorage.class, FilmRowMapper.class, UserDbStorage.class, UserRowMapper.class, GenreDbStorage.class, GenreRowMapper.class})
+@Import({FilmDbStorage.class, FilmRowMapper.class, UserDbStorage.class, UserRowMapper.class, GenreDbStorage.class, GenreRowMapper.class, MpaDbStorage.class, MpaRowMapper.class})
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class FilmDbStorageTest {
     private final FilmDbStorage filmDbStorage;
@@ -41,8 +43,10 @@ public class FilmDbStorageTest {
         String description = "Описание";
         int duration = 150;
         Mpa mpa = Mpa.builder().id(1).build();
+        Genre genre1 = new Genre(1, "");
+        Genre genre2 = new Genre(2, "");
         Film film = Film.builder().name(name).releaseDate(LocalDate.now()).description(description).duration(duration)
-            .mpa(mpa).build();
+            .genres(Set.of(genre1, genre2)).mpa(mpa).build();
 
         int addedFilmId = filmDbStorage.add(film);
 
@@ -52,6 +56,8 @@ public class FilmDbStorageTest {
         assertEquals(duration, addedFilm.getDuration());
         assertEquals(1, addedFilm.getMpa().getId());
         assertEquals(MpaCode.G, addedFilm.getMpa().getCode());
+        assertEquals(2, addedFilm.getGenres().size());
+        assertTrue(addedFilm.getGenres().contains(genre2));
     }
 
     @Test
@@ -62,8 +68,10 @@ public class FilmDbStorageTest {
         int duration = 110;
         String releaseDate = "2000-01-01";
         Mpa mpa = Mpa.builder().id(2).build();
+        Genre genre1 = new Genre(1, "");
+        Genre genre2 = new Genre(2, "");
         Film filmToUpdate = Film.builder().id(filmId).name(name).description(description).duration(duration)
-            .releaseDate(LocalDate.parse(releaseDate)).mpa(mpa).build();
+            .releaseDate(LocalDate.parse(releaseDate)).mpa(mpa).genres(Set.of(genre1, genre2)).build();
 
         filmDbStorage.update(filmToUpdate);
 
@@ -73,6 +81,8 @@ public class FilmDbStorageTest {
         assertEquals(duration, updatedFilm.getDuration());
         assertEquals(releaseDate, updatedFilm.getReleaseDate().toString());
         assertEquals(2, updatedFilm.getMpa().getId());
+        assertEquals(2, updatedFilm.getGenres().size());
+        assertTrue(updatedFilm.getGenres().contains(genre2));
     }
 
     @Test
@@ -88,7 +98,6 @@ public class FilmDbStorageTest {
 
         Collection<User> userLikes = userDbStorage.getUsersByFilmId(filmId);
         assertEquals(1, userLikes.size());
-
     }
 
     @Test
@@ -106,29 +115,6 @@ public class FilmDbStorageTest {
 
         Collection<User> userLikes = userDbStorage.getUsersByFilmId(filmId);
         assertTrue(userLikes.isEmpty());
-    }
-
-    @Test
-    public void addGenresToFilm() {
-        int filmId = 1000;
-        Genre genre = new Genre(1, "");
-        List<Genre> genres = List.of(genre);
-
-        filmDbStorage.addGenresToFilm(filmId, genres);
-
-        Collection<Genre> filmGenres = filmDbStorage.getById(filmId).orElseThrow().getGenres();
-        assertEquals(1, filmGenres.size());
-    }
-
-    @Test
-    public void deleteGenresToFilm() {
-        int filmId = 1000;
-        jdbc.update("INSERT INTO film_genre(film_id,genre_id) VALUES(?,?)", filmId, 2);
-
-        filmDbStorage.deleteGenresFromFilm(filmId);
-
-        Collection<Genre> filmGenres = filmDbStorage.getById(filmId).orElseThrow().getGenres();
-        assertTrue(filmGenres.isEmpty());
     }
 
     @Test

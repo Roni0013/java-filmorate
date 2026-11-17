@@ -32,8 +32,8 @@ public class UserDbStorageTest {
     }
 
     @Test
-    public void testList() {
-        Collection<User> users = userStorage.list();
+    public void testGetAll() {
+        Collection<User> users = userStorage.getAll();
 
         assertEquals(1, users.size());
     }
@@ -110,5 +110,22 @@ public class UserDbStorageTest {
 
         Collection<User> friends = userStorage.getFriendsByUserId(1000);
         assertTrue(friends.isEmpty());
+    }
+
+    @Test
+    public void testCommonFriends() {
+        jdbc.update("INSERT INTO users(id,login,name,email,birthday) "
+            + "VALUES (?,?,?,?,?)", 1010, "friendUser", "Петров Петр", "friend@test.tets", "2026-11-11");
+        jdbc.update("INSERT INTO users(id,login,name,email,birthday) "
+            + "VALUES (?,?,?,?,?)", 1020, "commonFriend", "Сидоров Сидоров", "common_friend@test.test", "2020-11-11");
+        jdbc.update("INSERT INTO user_link(user_id_from,user_id_to) "
+            + "VALUES (?,?)", 1000, 1020);
+        jdbc.update("INSERT INTO user_link(user_id_from,user_id_to) "
+            + "VALUES (?,?)", 1010, 1020);
+
+        Collection<User> commonFriends = userStorage.getCommonFriends(1000, 1010);
+
+        assertEquals(1, commonFriends.size());
+        assertEquals(1020, commonFriends.stream().findFirst().orElseThrow().getId());
     }
 }

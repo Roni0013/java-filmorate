@@ -18,7 +18,7 @@ public class MpaDbStorage extends BaseDbStorage<Mpa> implements MpaStorage {
     }
 
     @Override
-    public Collection<Mpa> list() {
+    public Collection<Mpa> getAll() {
         return findMany(ALL_QUERY);
     }
 

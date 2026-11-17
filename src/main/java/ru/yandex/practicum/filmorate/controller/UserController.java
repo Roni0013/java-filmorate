@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.UserDTO;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.request.UserCreateRequest;
 import ru.yandex.practicum.filmorate.request.UserUpdateRequest;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -27,8 +26,8 @@ public class UserController {
     }
 
     @GetMapping
-    public Collection<UserDTO> list() {
-        return userService.list();
+    public Collection<UserDTO> getAll() {
+        return userService.getAll();
     }
 
     @PutMapping
@@ -53,12 +52,12 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public Collection<UserDTO> listFriends(@PathVariable int id) {
-        return userService.listFriends(id);
+    public Collection<UserDTO> getFriends(@PathVariable int id) {
+        return userService.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Collection<User> commonFriends(@PathVariable int id, @PathVariable int otherId) {
+    public Collection<UserDTO> commonFriends(@PathVariable int id, @PathVariable int otherId) {
         return userService.getCommonFriends(id, otherId);
     }
 }

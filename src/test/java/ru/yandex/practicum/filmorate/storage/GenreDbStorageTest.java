@@ -23,8 +23,8 @@ public class GenreDbStorageTest {
     private final JdbcTemplate jdbc;
 
     @Test
-    public void testList() {
-        Collection<Genre> genres = genreStorage.list();
+    public void testGetAll() {
+        Collection<Genre> genres = genreStorage.getAll();
 
         assertEquals(6, genres.size());
     }

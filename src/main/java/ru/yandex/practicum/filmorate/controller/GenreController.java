@@ -18,8 +18,8 @@ public class GenreController {
     private final GenreService genreService;
 
     @GetMapping
-    public Collection<GenreDTO> list() {
-        return genreService.list();
+    public Collection<GenreDTO> getAll() {
+        return genreService.getAll();
     }
 
     @GetMapping("/{id}")

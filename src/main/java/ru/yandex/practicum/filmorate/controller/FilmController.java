@@ -21,8 +21,8 @@ public class FilmController {
     private final FilmService filmService;
 
     @GetMapping
-    public Collection<FilmListDTO> list() {
-        return filmService.list();
+    public Collection<FilmListDTO> getAll() {
+        return filmService.getAll();
     }
 
     @GetMapping("/{id}")

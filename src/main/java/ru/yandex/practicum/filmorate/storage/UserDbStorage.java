@@ -24,13 +24,16 @@ public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
             + "WHERE ul.user_id_from=?";
     private static final String LIKES_QUERY =
         "SELECT u.id,u.login,u.name,u.email,u.birthday FROM users u JOIN likes l ON l.user_id=u.id WHERE l.film_id=?";
+    private static final String COMMON_FRIENDS = "SELECT u.id,u.login,u.name,u.email,u.birthday FROM users u "
+        + "JOIN user_link ul1 ON u.id=ul1.user_id_to JOIN user_link ul2 ON ul1.user_id_to=ul2.user_id_to "
+        + "WHERE ul1.user_id_from=? AND ul2.user_id_from=?";
 
     public UserDbStorage(JdbcTemplate jdbc, UserRowMapper mapper) {
         super(jdbc, mapper);
     }
 
     @Override
-    public Collection<User> list() {
+    public Collection<User> getAll() {
         return findMany(ALL_QUERY);
     }
 
@@ -47,7 +50,7 @@ public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
 
     @Override
     public boolean isExists(Predicate<User> predicate) {
-        return list().stream().anyMatch(predicate);
+        return getAll().stream().anyMatch(predicate);
     }
 
     @Override
@@ -77,5 +80,10 @@ public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
     @Override
     public Collection<User> getUsersByFilmId(int id) {
         return findMany(LIKES_QUERY, id);
+    }
+
+    @Override
+    public Collection<User> getCommonFriends(int id, int otherId) {
+        return findMany(COMMON_FRIENDS, id, otherId);
     }
 }

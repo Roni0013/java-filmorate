@@ -14,10 +14,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.request.FilmCreateRequest;
 import ru.yandex.practicum.filmorate.request.FilmUpdateRequest;
-import ru.yandex.practicum.filmorate.request.IdRequest;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.GenreStorage;
-import ru.yandex.practicum.filmorate.storage.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
@@ -28,15 +25,11 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Slf4j
 public class FilmService {
-    private static final int DEFAULT_MPA = 1;
-
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
-    private final GenreStorage genreStorage;
-    private final MpaStorage mpaStorage;
 
-    public Collection<FilmListDTO> list() {
-        return filmStorage.list().stream().map(FilmMapper::mapToFilmListDTO).toList();
+    public Collection<FilmListDTO> getAll() {
+        return filmStorage.getAll().stream().map(FilmMapper::mapToFilmListDTO).toList();
     }
 
     public FilmDTO getById(int id) {
@@ -44,34 +37,32 @@ public class FilmService {
     }
 
     public FilmDTO create(FilmCreateRequest filmRequest) {
-        Mpa mpa = getMpaOrDefault(filmRequest.getMpa());
         Set<Genre> genres = new HashSet<>();
-        filmRequest.getGenres().forEach(idRequest -> genres.add(getGenre(idRequest.getId())));
+        filmRequest.getGenres().forEach(genreRequest -> genres.add(Genre.builder().id(genreRequest.getId()).build()));
 
         Film film = Film.builder().name(filmRequest.getName()).description(filmRequest.getDescription())
             .duration(filmRequest.getDuration()).releaseDate(filmRequest.getReleaseDate())
-            .mpa(mpa).build();
-        int id = filmStorage.add(film);
-        filmStorage.addGenresToFilm(id, genres.stream().toList());
+            .mpa(Mpa.builder().id(filmRequest.getMpa().getIdOrDefault()).build())
+            .genres(genres)
+            .build();
+        int createdFilmId = filmStorage.add(film);
         log.info("Фильм {} добавлен", film.getName());
-        return FilmMapper.mapToFilmDTO(getFilm(id));
+        return FilmMapper.mapToFilmDTO(getFilm(createdFilmId));
     }
 
     public FilmDTO update(FilmUpdateRequest filmRequest) {
         int filmId = filmRequest.getId();
         Film existsFilm = getFilm(filmId);
-        Mpa newMpa = getMpaOrDefault(filmRequest.getMpa());
         Set<Genre> newGenres = new HashSet<>();
-        filmRequest.getGenres().forEach(idRequest -> newGenres.add(getGenre(idRequest.getId())));
+        filmRequest.getGenres()
+            .forEach(genreRequest -> newGenres.add(Genre.builder().id(genreRequest.getId()).build()));
 
         existsFilm = existsFilm.toBuilder().name(filmRequest.getName()).description(filmRequest.getDescription())
             .releaseDate(filmRequest.getReleaseDate()).duration(filmRequest.getDuration())
-            .mpa(newMpa)
+            .mpa(Mpa.builder().id(filmRequest.getMpa().getIdOrDefault()).build())
             .genres(newGenres).build();
 
         filmStorage.update(existsFilm);
-        filmStorage.deleteGenresFromFilm(filmId);
-        filmStorage.addGenresToFilm(filmId, existsFilm.getGenres().stream().toList());
         log.info("Фильм {} обновлен", filmRequest.getName());
         return FilmMapper.mapToFilmDTO(getFilm(filmId));
     }
@@ -113,28 +104,6 @@ public class FilmService {
         return userStorage.getById(id).orElseThrow(() -> {
             log.error("Пользователь id = {} не найден", id);
             return new NotFoundException(String.format("Пользователь id = %d не найден", id));
-        });
-    }
-
-    private Mpa getMpa(int id) {
-        return mpaStorage.getById(id).orElseThrow(() -> {
-            log.error("mpa id = {} не найден", id);
-            return new NotFoundException(String.format("Неверно указано ограничение для фильма, id=%d", id));
-        });
-    }
-
-    private Mpa getMpaOrDefault(IdRequest mpaRequest) {
-        if (mpaRequest != null && mpaRequest.getId() != null) {
-            return getMpa(mpaRequest.getId());
-        } else {
-            return getMpa(DEFAULT_MPA);
-        }
-    }
-
-    private Genre getGenre(int id) {
-        return genreStorage.getById(id).orElseThrow(() -> {
-            log.error("genre id = {} не найден", id);
-            return new NotFoundException(String.format("Неверно указан жанр фильма, id=%d", id));
         });
     }
 }

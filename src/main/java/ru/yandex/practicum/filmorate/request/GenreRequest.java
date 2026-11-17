@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class IdRequest {
+public class GenreRequest {
     @NotNull
-    private Integer id;
+    private final Integer id;
 }

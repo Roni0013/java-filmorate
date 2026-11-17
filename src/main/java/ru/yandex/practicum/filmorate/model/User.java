@@ -38,7 +38,7 @@ public class User {
         return friends.remove(user);
     }
 
-    public Set<User> listFriends() {
+    public Set<User> getFriends() {
         return Set.copyOf(friends);
     }
 }

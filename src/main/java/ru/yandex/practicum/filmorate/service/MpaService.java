@@ -17,8 +17,8 @@ public class MpaService {
 
     private final MpaStorage mpaStorage;
 
-    public Collection<MpaDTO> list() {
-        return mpaStorage.list().stream().map(MpaMapper::mapToMpaDTO).toList();
+    public Collection<MpaDTO> getAll() {
+        return mpaStorage.getAll().stream().map(MpaMapper::mapToMpaDTO).toList();
     }
 
     public MpaDTO getById(int id) {

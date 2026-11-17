@@ -20,7 +20,7 @@ public class GenreDbStorage extends BaseDbStorage<Genre> implements GenreStorage
     }
 
     @Override
-    public Collection<Genre> list() {
+    public Collection<Genre> getAll() {
         return findMany(ALL_QUERY);
     }
 

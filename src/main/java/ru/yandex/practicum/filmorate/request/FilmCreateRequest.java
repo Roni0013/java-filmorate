@@ -14,15 +14,15 @@ import java.util.List;
 @Data
 public class FilmCreateRequest {
     @NotBlank
-    private String name;
+    private final String name;
     @Size(max = 200)
-    private String description;
+    private final String description;
     @NotNull
     @AfterDate("1895-12-27")
-    private LocalDate releaseDate;
+    private final LocalDate releaseDate;
     @Positive
-    private Integer duration;
+    private final Integer duration;
     @NotNull
-    private IdRequest mpa;
-    private List<IdRequest> genres = new ArrayList<>();
+    private final MpaRequest mpa;
+    private final List<GenreRequest> genres = new ArrayList<>();
 }

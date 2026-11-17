@@ -13,12 +13,12 @@ import java.time.LocalDate;
 public class UserCreateRequest {
     @NotBlank
     @Email
-    private String email;
+    private final String email;
     @NotBlank
     @WithoutSpace
-    private String login;
-    private String name;
+    private final String login;
+    private final String name;
     @NotNull
     @PastOrPresent
-    private LocalDate birthday;
+    private final LocalDate birthday;
 }

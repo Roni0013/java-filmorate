@@ -12,15 +12,15 @@ import java.time.LocalDate;
 @Data
 public class UserUpdateRequest {
     @NotNull
-    private Integer id;
+    private final Integer id;
     @NotBlank
     @Email
-    private String email;
+    private final String email;
     @NotBlank
     @WithoutSpace
-    private String login;
-    private String name;
+    private final String login;
+    private final String name;
     @NotNull
     @PastOrPresent
-    private LocalDate birthday;
+    private final LocalDate birthday;
 }

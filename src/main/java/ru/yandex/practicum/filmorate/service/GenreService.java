@@ -17,8 +17,8 @@ public class GenreService {
 
     private final GenreStorage genreStorage;
 
-    public Collection<GenreDTO> list() {
-        return genreStorage.list().stream().map(GenreMapper::mapToGenreDTO).toList();
+    public Collection<GenreDTO> getAll() {
+        return genreStorage.getAll().stream().map(GenreMapper::mapToGenreDTO).toList();
     }
 
     public GenreDTO getById(int id) {

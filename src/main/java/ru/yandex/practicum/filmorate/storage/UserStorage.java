@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 public interface UserStorage {
-    Collection<User> list();
+    Collection<User> getAll();
 
     int add(User user);
 
@@ -24,4 +24,6 @@ public interface UserStorage {
     Collection<User> getFriendsByUserId(int id);
 
     Collection<User> getUsersByFilmId(int id);
+
+    Collection<User> getCommonFriends(int id, int otherId);
 }

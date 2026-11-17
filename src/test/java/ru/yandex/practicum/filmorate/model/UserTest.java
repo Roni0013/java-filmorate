@@ -73,7 +73,7 @@ public class UserTest {
 
         user.addFriend(friend);
 
-        assertEquals(1, user.listFriends().size());
+        assertEquals(1, user.getFriends().size());
     }
 
     @Test
@@ -84,7 +84,7 @@ public class UserTest {
         boolean addFirstResult = user.addFriend(friend);
         boolean addSecondResult = user.addFriend(friend);
 
-        assertEquals(1, user.listFriends().size());
+        assertEquals(1, user.getFriends().size());
         assertTrue(addFirstResult);
         assertFalse(addSecondResult);
     }
@@ -97,6 +97,6 @@ public class UserTest {
         User user = new User.UserBuilder().id(1).friends(friends).build();
 
         assertTrue(user.removeFriend(friend));
-        assertTrue(user.listFriends().isEmpty());
+        assertTrue(user.getFriends().isEmpty());
     }
 }

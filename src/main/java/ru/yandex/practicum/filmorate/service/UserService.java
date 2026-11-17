@@ -22,8 +22,8 @@ import java.util.Set;
 public class UserService {
     private final UserStorage userStorage;
 
-    public Collection<UserDTO> list() {
-        return userStorage.list().stream().map(UserMapper::mapToUserDTO).toList();
+    public Collection<UserDTO> getAll() {
+        return userStorage.getAll().stream().map(UserMapper::mapToUserDTO).toList();
     }
 
     public UserDTO create(UserCreateRequest userRequest) {
@@ -74,19 +74,15 @@ public class UserService {
         log.info("Пользователь {} и {} теперь не друзья", user.getLogin(), friend.getLogin());
     }
 
-    public Collection<UserDTO> listFriends(int id) {
+    public Collection<UserDTO> getFriends(int id) {
         User user = getUser(id);
         Collection<User> friends = userStorage.getFriendsByUserId(user.getId());
         log.debug("Найдено {} друзей", friends.size());
         return friends.stream().map(UserMapper::mapToUserDTO).toList();
     }
 
-    public Collection<User> getCommonFriends(int id, int otherId) {
-        User user = getUser(id);
-        User otherUser = getUser(otherId);
-        Set<User> friends = new HashSet<>(userStorage.getFriendsByUserId(user.getId()));
-        Set<User> otherFriends = new HashSet<>(userStorage.getFriendsByUserId(otherUser.getId()));
-        return friends.stream().filter(otherFriends::contains).toList();
+    public Collection<UserDTO> getCommonFriends(int id, int otherId) {
+        return userStorage.getCommonFriends(id, otherId).stream().map(UserMapper::mapToUserDTO).toList();
     }
 
     private User getUser(int id) {
