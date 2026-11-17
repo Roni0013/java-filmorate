@@ -6,9 +6,8 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Data
-@EqualsAndHashCode
+@EqualsAndHashCode(of = {"id"})
 public class Genre {
     private final int id;
     private final String description;
-
 }

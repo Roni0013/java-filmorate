@@ -10,7 +10,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,11 +32,11 @@ public class FilmTest {
         LocalDate releaseDate = LocalDate.parse("2000-01-01");
         int duration = 95;
         Genre genre1 = new Genre(1, "genre1");
-        Genre genre2 = new Genre(1, "genre2");
-        Mpa mpa = Mpa.builder().code(Mpa.Code.NC17).build();
+        Genre genre2 = new Genre(2, "genre2");
+        Mpa mpa = Mpa.builder().code(MpaCode.NC17).build();
 
         Film film = Film.builder().name(name).description(description).releaseDate(releaseDate).duration(duration)
-            .genres(List.of(genre1, genre2)).mpa(mpa).build();
+            .genres(Set.of(genre1, genre2)).mpa(mpa).build();
 
         assertEquals(name, film.getName());
         assertEquals(description, film.getDescription());
@@ -59,7 +58,7 @@ public class FilmTest {
                                int duration, String errorField) {
         String description = desc.repeat(repeat);
         LocalDate releaseDate = LocalDate.parse(dateString);
-        Mpa mpa = Mpa.builder().code(Mpa.Code.NC17).build();
+        Mpa mpa = Mpa.builder().code(MpaCode.NC17).build();
 
         Film film = Film.builder().name(name).description(description).releaseDate(releaseDate).duration(duration)
             .mpa(mpa).build();

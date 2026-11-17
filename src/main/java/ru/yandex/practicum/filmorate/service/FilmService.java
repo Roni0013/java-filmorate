@@ -22,13 +22,14 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class FilmService {
+    private static final int DEFAULT_MPA = 1;
+
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final GenreStorage genreStorage;
@@ -39,29 +40,17 @@ public class FilmService {
     }
 
     public FilmDTO getById(int id) {
-        Film film = getFilm(id);
-        List<Genre> genres = genreStorage.getByFilmId(id).stream().toList();
-        Mpa mpa = getMpa(film.getMpa().getId());
-
-        return FilmMapper.mapToFilmDTO(film.toBuilder().genres(genres).mpa(mpa).build());
+        return FilmMapper.mapToFilmDTO(getFilm(id));
     }
 
-    public FilmDTO create(FilmCreateRequest filmCreateRequest) {
-        IdRequest mpaRequest = filmCreateRequest.getMpa();
-        Mpa mpa;
-        if (mpaRequest != null && mpaRequest.getId() != null) {
-            mpa = getMpa(mpaRequest.getId());
-        } else {
-            mpa = getMpa(1);
-        }
+    public FilmDTO create(FilmCreateRequest filmRequest) {
+        Mpa mpa = getMpaOrDefault(filmRequest.getMpa());
         Set<Genre> genres = new HashSet<>();
-        for (IdRequest genreRequest : filmCreateRequest.getGenres()) {
-            genres.add(getGenre(genreRequest.getId()));
-        }
+        filmRequest.getGenres().forEach(idRequest -> genres.add(getGenre(idRequest.getId())));
 
-        Film film = Film.builder().name(filmCreateRequest.getName()).description(filmCreateRequest.getDescription())
-            .duration(filmCreateRequest.getDuration()).releaseDate(filmCreateRequest.getReleaseDate()).mpa(mpa)
-            .build();
+        Film film = Film.builder().name(filmRequest.getName()).description(filmRequest.getDescription())
+            .duration(filmRequest.getDuration()).releaseDate(filmRequest.getReleaseDate())
+            .mpa(mpa).build();
         int id = filmStorage.add(film);
         filmStorage.addGenresToFilm(id, genres.stream().toList());
         log.info("Фильм {} добавлен", film.getName());
@@ -71,47 +60,40 @@ public class FilmService {
     public FilmDTO update(FilmUpdateRequest filmRequest) {
         int filmId = filmRequest.getId();
         Film existsFilm = getFilm(filmId);
-        IdRequest mpaRequest = filmRequest.getMpa();
-        Mpa newMpa;
-        if (mpaRequest != null && mpaRequest.getId() != null) {
-            newMpa = getMpa(mpaRequest.getId());
-        } else {
-            newMpa = getMpa(1);
-        }
+        Mpa newMpa = getMpaOrDefault(filmRequest.getMpa());
         Set<Genre> newGenres = new HashSet<>();
-        for (IdRequest genreRequest : filmRequest.getGenres()) {
-            newGenres.add(getGenre(genreRequest.getId()));
-        }
+        filmRequest.getGenres().forEach(idRequest -> newGenres.add(getGenre(idRequest.getId())));
 
         existsFilm = existsFilm.toBuilder().name(filmRequest.getName()).description(filmRequest.getDescription())
-            .releaseDate(filmRequest.getReleaseDate()).duration(filmRequest.getDuration()).mpa(newMpa)
-            .genres(newGenres.stream().toList()).build();
+            .releaseDate(filmRequest.getReleaseDate()).duration(filmRequest.getDuration())
+            .mpa(newMpa)
+            .genres(newGenres).build();
 
         filmStorage.update(existsFilm);
         filmStorage.deleteGenresFromFilm(filmId);
-        filmStorage.addGenresToFilm(filmId, existsFilm.getGenres());
+        filmStorage.addGenresToFilm(filmId, existsFilm.getGenres().stream().toList());
         log.info("Фильм {} обновлен", filmRequest.getName());
         return FilmMapper.mapToFilmDTO(getFilm(filmId));
     }
 
     public void addLike(int filmId, int userId) {
-        Film film = getFilm(filmId);
         User user = getUser(userId);
-        boolean isLiked = film.addLike(user);
+        boolean isLiked = new HashSet<>(userStorage.getUsersByFilmId(filmId)).add(user);
         if (!isLiked) {
             throw new DuplicateException("Еще раз лайкнуть не получится");
         }
+        Film film = getFilm(filmId);
         filmStorage.addLike(film, user);
         log.info("Пользователь {} поставил лайк к фильму {}", user.getLogin(), film.getName());
     }
 
     public void removeLike(int filmId, int userId) {
-        Film film = getFilm(filmId);
         User user = getUser(userId);
-        boolean isRemoved = film.removeLike(user);
+        boolean isRemoved = new HashSet<>(userStorage.getUsersByFilmId(filmId)).remove(user);
         if (!isRemoved) {
             throw new NotFoundException("Нечего дизлайкать");
         }
+        Film film = getFilm(filmId);
         filmStorage.removeLike(film, user);
         log.info("Пользователь {} убрал лайк к фильму {}", user.getLogin(), film.getName());
     }
@@ -121,14 +103,10 @@ public class FilmService {
     }
 
     private Film getFilm(int id) {
-        Film film = filmStorage.getById(id).orElseThrow(() -> {
+        return filmStorage.getById(id).orElseThrow(() -> {
             log.error("Фильм id = {} не найден", id);
             return new NotFoundException(String.format("Фильм id = %d не найден", id));
         });
-        Collection<Genre> genres = genreStorage.getByFilmId(film.getId());
-        Mpa mpa = mpaStorage.getById(film.getMpa().getId()).orElseThrow();
-        Set<User> likes = new HashSet<>(userStorage.getUsersByFilmId(id));
-        return film.toBuilder().genres(genres.stream().toList()).mpa(mpa).likes(likes).build();
     }
 
     private User getUser(int id) {
@@ -143,6 +121,14 @@ public class FilmService {
             log.error("mpa id = {} не найден", id);
             return new NotFoundException(String.format("Неверно указано ограничение для фильма, id=%d", id));
         });
+    }
+
+    private Mpa getMpaOrDefault(IdRequest mpaRequest) {
+        if (mpaRequest != null && mpaRequest.getId() != null) {
+            return getMpa(mpaRequest.getId());
+        } else {
+            return getMpa(DEFAULT_MPA);
+        }
     }
 
     private Genre getGenre(int id) {

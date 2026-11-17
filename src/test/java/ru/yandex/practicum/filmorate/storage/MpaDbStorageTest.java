@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.MpaCode;
 import ru.yandex.practicum.filmorate.storage.mapper.MpaRowMapper;
 
 import java.util.Collection;
@@ -32,7 +33,6 @@ public class MpaDbStorageTest {
         Mpa mpa = mpaStorage.getById(1).orElseThrow();
 
         assertEquals(1, mpa.getId());
-        assertEquals(Mpa.Code.G, mpa.getCode());
-        assertEquals("Нет возрастных ограничений", mpa.getDescription());
+        assertEquals(MpaCode.G, mpa.getCode());
     }
 }

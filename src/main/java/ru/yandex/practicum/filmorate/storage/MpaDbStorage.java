@@ -10,8 +10,8 @@ import java.util.Optional;
 
 @Repository
 public class MpaDbStorage extends BaseDbStorage<Mpa> implements MpaStorage {
-    private static final String ALL_QUERY = "SELECT id,code,description FROM mpa";
-    private static final String BY_ID_QUERY = "SELECT id,code,description FROM mpa WHERE id=?";
+    private static final String ALL_QUERY = "SELECT id,code FROM mpa";
+    private static final String BY_ID_QUERY = "SELECT id,code FROM mpa WHERE id=?";
 
     public MpaDbStorage(JdbcTemplate jdbc, MpaRowMapper mapper) {
         super(jdbc, mapper);

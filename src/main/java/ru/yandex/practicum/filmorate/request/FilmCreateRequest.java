@@ -22,6 +22,7 @@ public class FilmCreateRequest {
     private LocalDate releaseDate;
     @Positive
     private Integer duration;
+    @NotNull
     private IdRequest mpa;
     private List<IdRequest> genres = new ArrayList<>();
 }

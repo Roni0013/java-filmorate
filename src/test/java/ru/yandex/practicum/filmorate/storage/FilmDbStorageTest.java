@@ -8,10 +8,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.mapper.FilmRowMapper;
 import ru.yandex.practicum.filmorate.storage.mapper.GenreRowMapper;
 import ru.yandex.practicum.filmorate.storage.mapper.UserRowMapper;
@@ -30,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class FilmDbStorageTest {
     private final FilmDbStorage filmDbStorage;
     private final UserDbStorage userDbStorage;
-    private final GenreDbStorage genreDbStorage;
     private final JdbcTemplate jdbc;
 
     @BeforeEach
@@ -55,6 +51,7 @@ public class FilmDbStorageTest {
         assertEquals(description, addedFilm.getDescription());
         assertEquals(duration, addedFilm.getDuration());
         assertEquals(1, addedFilm.getMpa().getId());
+        assertEquals(MpaCode.G, addedFilm.getMpa().getCode());
     }
 
     @Test
@@ -119,7 +116,7 @@ public class FilmDbStorageTest {
 
         filmDbStorage.addGenresToFilm(filmId, genres);
 
-        Collection<Genre> filmGenres = genreDbStorage.getByFilmId(filmId);
+        Collection<Genre> filmGenres = filmDbStorage.getById(filmId).orElseThrow().getGenres();
         assertEquals(1, filmGenres.size());
     }
 
@@ -130,7 +127,7 @@ public class FilmDbStorageTest {
 
         filmDbStorage.deleteGenresFromFilm(filmId);
 
-        Collection<Genre> filmGenres = genreDbStorage.getByFilmId(filmId);
+        Collection<Genre> filmGenres = filmDbStorage.getById(filmId).orElseThrow().getGenres();
         assertTrue(filmGenres.isEmpty());
     }
 

@@ -29,7 +29,7 @@ public class UserService {
     public UserDTO create(UserCreateRequest userRequest) {
         User user = User.builder().login(userRequest.getLogin()).name(userRequest.getName())
             .email(userRequest.getEmail()).birthday(userRequest.getBirthday()).build();
-        log.trace("Добавление пользователя {}", user);
+        log.debug("Добавление пользователя {}", user);
         int id = userStorage.add(user);
         log.info("Пользователь {} добавлен", user.getLogin());
         return UserMapper.mapToUserDTO(userStorage.getById(id).orElseThrow());
@@ -77,7 +77,7 @@ public class UserService {
     public Collection<UserDTO> listFriends(int id) {
         User user = getUser(id);
         Collection<User> friends = userStorage.getFriendsByUserId(user.getId());
-        log.trace("Найдено {} друзей", friends.size());
+        log.debug("Найдено {} друзей", friends.size());
         return friends.stream().map(UserMapper::mapToUserDTO).toList();
     }
 

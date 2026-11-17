@@ -36,7 +36,7 @@ public class BaseDbStorage<T> {
     }
 
     protected int update(String query, Object... params) {
-        log.trace("Обновление записи {}", Arrays.toString(params));
+        log.debug("Обновление записи {}", Arrays.toString(params));
         return jdbc.update(query, params);
     }
 
@@ -53,9 +53,9 @@ public class BaseDbStorage<T> {
     }
 
     private PreparedStatement preparedStatement(String query, Connection con, Object... params) throws SQLException {
-        log.trace("Подготовка PreparedStatement для {}", query);
+        log.debug("Подготовка PreparedStatement для {}", query);
         PreparedStatement ps = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-        log.trace("PreparedStatement подготовлен {}", ps.toString());
+        log.debug("PreparedStatement подготовлен {}", ps.toString());
         for (int idx = 0; idx < params.length; idx++) {
             ps.setObject(idx + 1, params[idx]);
         }

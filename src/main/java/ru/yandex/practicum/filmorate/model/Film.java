@@ -8,7 +8,6 @@ import lombok.*;
 import ru.yandex.practicum.filmorate.validator.AfterDate;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -18,9 +17,7 @@ import java.util.Set;
 @Setter
 @Builder(toBuilder = true)
 @EqualsAndHashCode(of = {"id"})
-public class Film implements Comparable<Film> {
-    @Getter(AccessLevel.NONE)
-    private Set<User> likes;
+public class Film {
     private Integer id;
     @NotBlank
     private String name;
@@ -33,22 +30,5 @@ public class Film implements Comparable<Film> {
     private Integer duration;
     @NotNull
     private Mpa mpa;
-    private List<Genre> genres;
-
-    public boolean addLike(User user) {
-        return likes.add(user);
-    }
-
-    public boolean removeLike(User user) {
-        return likes.remove(user);
-    }
-
-    public int countLikes() {
-        return likes.size();
-    }
-
-    @Override
-    public int compareTo(Film other) {
-        return Integer.compare(countLikes(), other.countLikes());
-    }
+    private Set<Genre> genres;
 }
